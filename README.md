@@ -10,7 +10,7 @@ judge necessary.
 
 # How do I use this library ?
 
-Once you've `#include`d the header, you can read a _NumPy_ array with `npy::Array`'s static method
+Once you've included the header, you can read a _NumPy_ array with `npy::Array`'s static method
 `load` the following way :
 
 	auto array = npy::Array::load("input_file.npy")
