@@ -13,7 +13,9 @@ judge necessary.
 Once you've included the header, you can read a _NumPy_ array with `npy::Array`'s static method
 `load` the following way :
 
-	auto array = npy::Array::load("input_file.npy")
+```cpp
+auto array = npy::Array::load("input_file.npy")
+```
 
 The `npy::Array` class contains then two vectors :
 - `shape` : the number of elements for each dimension of the array
@@ -21,7 +23,9 @@ The `npy::Array` class contains then two vectors :
 
 You can then write an `npy::Array` to a _NumPy_ array using the `save` method :
 
+```cpp
 	array.save("output_file.npy")
+```
 
 ## Is there any equivalent to `np.zeros` ?
 
@@ -29,7 +33,9 @@ No, this library is solely intended to provide load/save routines, nothing else.
 If you really need to create an _M x N x O_ `npy::Array` filled with zeroes, I suggest the following
 call to its _constructor_ :
 
-	npy::Array{ { M, N, O }, std::vector<double>(M * N * O, 0.0) }
+```cpp
+npy::Array{ { M, N, O }, std::vector<double>(M * N * O, 0.0) }
+```
 
 Adapt the dimensions to your need.
 
@@ -39,7 +45,9 @@ As the array data is contained into an `std::vector`, one can obtain a _raw poin
 calling its `data` method.
 So if your `npy::Array` is called _array_, you do the following call :
 
-	array.data.data()
+```cpp
+array.data.data()
+```
 
 From there on, _library XYZ_ hopefully provides some procedure to convert the pointed data into a
 suitable form.
