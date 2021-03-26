@@ -1,11 +1,11 @@
 # What is this repository ?
 
 This repository contains one single header file, which contains functions to load and save _NumPy_
-arrays saved in **NPY** format, along with a license and this very file.
+arrays saved in _NPY_ format, along with a license and this very file.
 
 # How do I install this library ?
 
-You don't. Just download the _npy.hpp_ header file into your project, and `#include` it wherever you
+You don't. Just download the **npy.hpp** header file into your project, and `#include` it wherever you
 judge necessary.
 
 # How do I use this library ?
@@ -14,7 +14,7 @@ Once you've included the header, you can read a _NumPy_ array with `npy::Array`'
 `load` the following way :
 
 ```cpp
-auto array = npy::Array::load("input_file.npy")
+auto array = npy::Array::load("input_file.npy");
 ```
 
 The `npy::Array` class contains then two vectors :
@@ -24,7 +24,7 @@ The `npy::Array` class contains then two vectors :
 You can then write an `npy::Array` to a _NumPy_ array using the `save` method :
 
 ```cpp
-	array.save("output_file.npy")
+array.save("output_file.npy")
 ```
 
 ## Is there any equivalent to `np.zeros` ?
@@ -34,12 +34,12 @@ If you really need to create an _M x N x O_ `npy::Array` filled with zeroes, I s
 call to its _constructor_ :
 
 ```cpp
-npy::Array{ { M, N, O }, std::vector<double>(M * N * O, 0.0) }
+auto array = npy::Array{ { m, n, o }, std::vector<double>(m * n * o, 0.0) };
 ```
 
 Adapt the dimensions to your need.
 
-## How do I convert this to a format usable by library XYZ ?
+## How do I convert this to a format usable by _library XYZ_ ?
 
 As the array data is contained into an `std::vector`, one can obtain a _raw pointer_ to the data by
 calling its `data` method.
@@ -59,7 +59,7 @@ In turn, please avoid dangling pointers.
 
 ## Do I need specific flags to compile ?
 
-I have tested compiling with C++17 and C++20.
+I have tested compiling with _C++17_ and _C++20_, with _GCC_.
 
 # Limitations
 
