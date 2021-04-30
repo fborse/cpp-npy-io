@@ -5,7 +5,6 @@
 #include <string>
 
 #include <fstream>
-#include <regex>
 #include <stdexcept>
 
 namespace npy
@@ -81,39 +80,82 @@ namespace npy
 			stream.read(format_string.data(), header_len * sizeof(char));
 		}
 
+		std::string getDataFormat()
+		{
+			const size_t descr = format_string.find("'descr'");
+			if (descr == std::string::npos)
+				throw std::runtime_error("no 'descr' field in format string");
+
+			const size_t opening = 1 + format_string.find("'", descr + 7);
+			const size_t closing = format_string.find("'", opening);
+
+			const auto it = format_string.cbegin();
+			return std::string(it + opening, it + closing);
+		}
+
+		bool isFortranOrder()
+		{
+			const size_t fortran = format_string.find("'fortran_order'");
+			if (fortran == std::string::npos)
+				throw std::runtime_error("no 'fortran_order' field in format string");
+
+			const size_t true_pos = format_string.find("True", fortran);
+			const bool got_true = (true_pos != std::string::npos);
+			const size_t false_pos = format_string.find("False", fortran);
+			const bool got_false = (false_pos != std::string::npos);
+
+			return !(got_false && !got_true);
+		}
+
+		std::string getShapeString()
+		{
+			const size_t shape = format_string.find("'shape'");
+			if (shape == std::string::npos)
+				throw std::runtime_error("no 'shape' field in format string");
+
+			const size_t opening = 1 + format_string.find("(", shape);
+			const size_t closing = format_string.find(")", opening);
+
+			const auto it = format_string.cbegin();
+			return std::string(it + opening, it + closing);
+		}
+
 	//	"{'descr': '<f8', 'fortran_order': False, 'shape': (4, 32, 48, 218), }                \n"
 		void parseFormatString()
 		{
-			std::smatch match;
 		//	ensure that dtype is little-endian float32 or float64
-			std::regex_search(format_string, match, std::regex("'descr':\\s*'(.+?)'"));
-			if (match[1] == "<f4")
+			std::string dtype = getDataFormat();
+			if (dtype == "<f4")
 				float_sizes = F4;
-			else if (match[1] == "<f8")
+			else if (dtype == "<f8")
 				float_sizes = F8;
 			else
-				throw std::runtime_error("we only support dtype = float64 or float32");
+				throw std::runtime_error("we only support dtype = float32 or float64");
 
-		//	ensure that it's not using FORTRAN order
-			std::regex_search(format_string, match, std::regex("'fortran_order':\\s*(\\w+)"));
-			if (match[1] != "False")
+			if (isFortranOrder())
 				throw std::runtime_error("we don't support FORTRAN ordered arrays");
 
-		//	get shape string
-			std::regex_search(format_string, match, std::regex("'shape':\\s*\\((.+)\\)"));
-			shape_string = match[1];
+			shape_string = getShapeString();
 		}
 
 		void parseShapeString()
 		{
-			std::smatch match;
+			size_t start = 0;
+			size_t comma = shape_string.find(",");
 
-			std::string str = shape_string;
-			while (std::regex_search(str, match, std::regex("(\\d+)")))
+			while (comma != std::string::npos)
 			{
-				shape.push_back(std::stoul(match[1]));
-				str = match.suffix().str();
+				const auto it = shape_string.cbegin() + start;
+				const auto jt = shape_string.cbegin() + comma;
+				shape.push_back(std::stoul(std::string(it, jt)));
+
+				start = comma + 1;
+				comma = shape_string.find(",", start);
 			}
+
+			const auto it = shape_string.cbegin() + start;
+			const auto jt = shape_string.cend();
+			shape.push_back(std::stoul(std::string(it, jt)));
 
 			if (shape.size() == 0)
 				throw std::runtime_error("0-dimensional arrays unsupported");
@@ -204,7 +246,7 @@ namespace npy
 		format_string.resize(header_len, ' ');
 		format_string.back() = '\n';
 
-	//	actual writing to the file
+	//	actual writing of the file
 		stream.write(magic.data(), magic.size() * sizeof(char));
 		stream.write((char *) &major, sizeof(unsigned char));
 		stream.write((char *) &minor, sizeof(unsigned char));
