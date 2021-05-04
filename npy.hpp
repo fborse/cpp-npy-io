@@ -89,7 +89,7 @@ namespace npy
 			const size_t opening = 1 + format_string.find("'", descr + 7);
 			const size_t closing = format_string.find("'", opening);
 
-			const auto it = format_string.cbegin();
+			const auto it = std::cbegin(format_string);
 			return std::string(it + opening, it + closing);
 		}
 
@@ -116,7 +116,7 @@ namespace npy
 			const size_t opening = 1 + format_string.find("(", shape);
 			const size_t closing = format_string.find(")", opening);
 
-			const auto it = format_string.cbegin();
+			const auto it = std::cbegin(format_string);
 			return std::string(it + opening, it + closing);
 		}
 
@@ -145,16 +145,16 @@ namespace npy
 
 			while (comma != std::string::npos)
 			{
-				const auto it = shape_string.cbegin() + start;
-				const auto jt = shape_string.cbegin() + comma;
+				const auto it = std::cbegin(shape_string) + start;
+				const auto jt = std::cbegin(shape_string) + comma;
 				shape.push_back(std::stoul(std::string(it, jt)));
 
 				start = comma + 1;
 				comma = shape_string.find(",", start);
 			}
 
-			const auto it = shape_string.cbegin() + start;
-			const auto jt = shape_string.cend();
+			const auto it = std::cbegin(shape_string) + start;
+			const auto jt = std::cend(shape_string);
 			shape.push_back(std::stoul(std::string(it, jt)));
 
 			if (shape.size() == 0)
